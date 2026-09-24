@@ -36309,6 +36309,7 @@ const PersonView = {
     U.$$('[data-m]', m.el).forEach(el => el.onclick = () => { m.close(); PersonView['m_' + el.dataset.m](p); });
   },
   m_override(p) {
+    if (!need('people.override')) return;
     const codes = Object.keys(STATUS_CODES).filter(c => c !== 'INACTIVE');
     const m = Modal.open({ title: 'Set file status manually', size: 'sm',
       body: '<label class="fld"><span>Status</span>' + UI.sel('c', codes.map(c => ({ v: c, l: Status.label(c) })), (p.statusOverride || {}).code || 'COMPLETE', 'id="ovc"') + '</label><label class="fld"><span>Reason</span><textarea id="ovr" rows="3"></textarea></label><p class="help">The calculated status stays visible on the profile. Remove the override any time.</p>',
@@ -36323,6 +36324,7 @@ const PersonView = {
     };
   },
   m_archive(p) {
+    if (!need('people.archive')) return;
     const m = Modal.open({ title: 'Separate and archive ' + Fields.name(p), size: 'sm',
       body: '<p class="small" style="margin-top:0">The person is marked Inactive. Nothing is deleted: the full personnel file and history stay available.</p>' +
         '<label class="fld"><span>End date</span><input type="date" id="arEnd" value="' + U.esc(p.f.END_DATE || U.todayISO()) + '"></label><label class="fld"><span>Reason</span><input type="text" id="arWhy" placeholder="Resignation, end of contract, termination"></label>' +
@@ -36342,6 +36344,7 @@ const PersonView = {
     };
   },
   async m_reactivate(p) {
+    if (!need('people.archive')) return;
     if (!(await Modal.confirm('Reactivate', 'Return ' + U.esc(Fields.name(p)) + ' to Active status? Requirements will be checked again.', 'Reactivate'))) return;
     p.archived = null; p.status = 'Active'; p.f.END_DATE = '';
     await Data.save('person', p); await Audit.log('Employee reactivated', { personId: p.id });
@@ -36367,6 +36370,7 @@ const PersonView = {
     } finally { Busy.off(); }
   },
   async m_delete(p) {
+    if (!need('people.delete')) return;
     const typed = await Modal.prompt('Delete permanently', 'Type the full name "' + Fields.name(p) + '" to confirm. This removes the person and every document. Use Separate and archive for real departures.', '', { ok: 'Delete permanently' });
     if (typed === null) return;
     if (typed.trim().toLowerCase() !== Fields.name(p).toLowerCase()) { Toast.show('The name did not match. Nothing was deleted.', 'error'); return; }
@@ -36595,9 +36599,10 @@ const DocUI = {
       tab: async () => { if (!need('docs.export')) return; U.openBlob(bytes || await Docs.bytes(doc), doc.mime, fname); Docs.logView(doc, 'Document opened in a new tab'); },
       send: () => { m.close(); SendUI.open([doc]); },
       upsigned: async () => { const f = await U.pickFile('.pdf,.png,.jpg,.jpeg,.heic'); if (!f) return; Busy.on('Saving signed copy...'); try { await Docs.uploadSigned(doc, f); Toast.show('Signed copy saved. Document is complete.'); m.close(); Router.refresh(); } finally { Busy.off(); } },
-      status: async () => { const v = U.$('#dst', m.el).value; if (v === doc.status) return; await Docs.setStatus(doc, v); Toast.show('Status updated to ' + v + '.'); reopen(); },
-      replace: async () => { const f = await U.pickFile('.pdf,.png,.jpg,.jpeg,.heic,.docx'); if (!f) return; if (!(await Modal.confirm('Replace file', 'Replace the current file with ' + U.esc(f.name) + '? The old file stays in this document\'s file list. To keep an older and a newer version as separate documents, use Scan / Import instead.', 'Replace'))) return; await Docs.replace(doc, f); Toast.show('File replaced.'); reopen(); },
+      status: async () => { if (!need('docs.status')) return; const v = U.$('#dst', m.el).value; if (v === doc.status) return; await Docs.setStatus(doc, v); Toast.show('Status updated to ' + v + '.'); reopen(); },
+      replace: async () => { if (!need('docs.upload')) return; const f = await U.pickFile('.pdf,.png,.jpg,.jpeg,.heic,.docx'); if (!f) return; if (!(await Modal.confirm('Replace file', 'Replace the current file with ' + U.esc(f.name) + '? The old file stays in this document\'s file list. To keep an older and a newer version as separate documents, use Scan / Import instead.', 'Replace'))) return; await Docs.replace(doc, f); Toast.show('File replaced.'); reopen(); },
       delete: async () => {
+        if (!need('docs.delete')) return;
         const why = await Modal.prompt('Delete document', 'Reason for deleting "' + doc.title + '" (kept in the audit log). The employee record is not affected.', '', { ok: 'Delete document' });
         if (why === null) return;
         if (!why.trim()) { Toast.show('Please give a reason. Nothing was deleted.', 'error'); return; }
@@ -36609,7 +36614,7 @@ const DocUI = {
       move: () => PFile.moveDialog(doc),
       rename: () => PFile.renameDialog(doc),
       history: () => PFile.history(doc),
-      current: async () => { if (!(await Modal.confirm('Make current', 'Mark this copy as the current version again? The other copy stays in the file.', 'Make current'))) return; await Intake.makeCurrent(doc); reopen(); }
+      current: async () => { if (!need('docs.status')) return; if (!(await Modal.confirm('Make current', 'Mark this copy as the current version again? The other copy stays in the file.', 'Make current'))) return; await Intake.makeCurrent(doc); reopen(); }
     };
     U.$$('[data-a]', m.el).forEach(b => b.onclick = () => A[b.dataset.a]());
     U.$$('[data-other]', m.el).forEach(b => b.onclick = () => { m.close(); DocUI._last = { id: null, at: 0 }; DocUI.open(Data.get('doc', b.dataset.other)); });
