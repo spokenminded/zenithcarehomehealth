@@ -39048,9 +39048,12 @@ const Folders = {
    verify: a credential HR should verify against the issuing source. */
 const DOC_TYPES = [
   { id: 'dl', label: "Driver's License", folder: '02', reqs: ['req_dl', 'req_id'], single: true, exp: 'DRIVERS_LICENSE_EXPIRATION', x: 'idcard',
-    kw: [["driver'?s? ?licen[sc]e", 12], ['drivers? lic', 6], ['operator licen[sc]e', 8], ['\\bclass [a-e]\\b', 4], ['\\bdln\\b', 5], ['\\bendorse?ments?\\b', 4], ['\\brestr(ictions)?\\b', 3], ['\\b4d\\b', 2], ['\\b4b ?exp', 4], ['\\bdonor\\b', 2], ['real ?id', 2], ['\\bexp\\b', 1], ['\\bdob\\b', 2], ['[A-Z] ?\\d{3}-\\d{3}-\\d{2}-\\d{3}-\\d', 8]] },
+    kw: [["driver'?s? ?licen[sc]e", 12], ['drivers? lic', 6], ['operator licen[sc]e', 8], ['\\bclass [a-e]\\b', 4], ['\\bdln\\b', 5], ['\\bendorse?ments?\\b', 4], ['\\brestr(ictions)?\\b', 3], ['\\b4d\\b', 2], ['\\b4b ?exp', 4], ['\\bdonor\\b', 2], ['real ?id', 2], ['\\bexp\\b', 1], ['\\bdob\\b', 2], ['[A-Z] ?\\d{3}-\\d{3}-\\d{2}-\\d{3}-\\d', 8],
+      /* Back of the card: little text besides a barcode, but usually one of these */
+      ['organ donor', 5], ['\\bveteran\\b', 4], ['in the event of an? accident', 5], ['property of (the )?(department|division)', 5], ['if found,? (please )?(return|mail)', 4], ['this license (is|shall)', 4]] },
   { id: 'state_id', label: 'State ID Card', folder: '02', reqs: ['req_id'], single: true, x: 'idcard', docExp: true,
-    kw: [['identification card', 12], ['\\bid card\\b', 8], ['not a driver', 8], ['not valid for driving', 8], ['\\bdob\\b', 2], ['\\bexp\\b', 1]] },
+    kw: [['identification card', 12], ['\\bid card\\b', 8], ['not a driver', 8], ['not valid for driving', 8], ['\\bdob\\b', 2], ['\\bexp\\b', 1],
+      ['organ donor', 5], ['\\bveteran\\b', 4], ['property of (the )?(department|division)', 5], ['if found,? (please )?(return|mail)', 4]] },
   { id: 'ss_card', label: 'Social Security Card', folder: '02', reqs: [], single: true, x: 'sscard',
     kw: [['social security', 12], ['this number has been established', 12], ['social security administration', 6], ['\\bSSA\\b', 2]] },
   { id: 'passport', label: 'Passport', folder: '02', reqs: ['req_id'], single: true, x: 'passport', docExp: true,
@@ -39837,6 +39840,30 @@ const Extract = {
       const txt = ((course && course.text) || r.text || '').toLowerCase();
       const key = /hipaa|privacy/.test(txt) ? 'HIPAA_TRAINING_DATE' : /infection/.test(txt) ? 'INFECTION_CONTROL_DATE' : /emergency prep|disaster/.test(txt) ? 'EMERGENCY_PREP_DATE' : '';
       if (key) Extract.add(res, key, res.docDate.value, Math.min(res.docDate.conf, 80), { note: 'Matched from the course name' });
+    }
+    if (t.id === 'ceu') {
+      /* Which required topic this CEU certificate satisfies, so HR does not have to open every
+         certificate to see what it covers. Florida healthcare licensure topics first, since Zenith
+         is a Florida agency, then other common categories. */
+      const CEU_TOPICS = [
+        [/medical err(or|ors)/i, 'Medical Errors'],
+        [/domestic violence/i, 'Domestic Violence'],
+        [/human trafficking/i, 'Human Trafficking'],
+        [/hiv\s*\/?\s*aids|human immunodeficiency/i, 'HIV/AIDS'],
+        [/florida laws? and rules?|laws? and rules? (of|for) florida/i, 'Florida Laws and Rules'],
+        [/impaired (practitioner|professional)|recognizing impairment/i, 'Impaired Practitioner'],
+        [/child abuse|elder abuse|abuse,? neglect,?(and)? exploitation/i, 'Abuse, Neglect and Exploitation'],
+        [/alzheimer|dementia/i, "Alzheimer's / Dementia Care"],
+        [/bloodborne pathogens?/i, 'Bloodborne Pathogens'],
+        [/infection (control|prevention)/i, 'Infection Control'],
+        [/\bhipaa\b|patient privacy/i, 'HIPAA / Privacy'],
+        [/cultural competen/i, 'Cultural Competency'],
+        [/ethics (and|&) boundaries|professional ethics/i, 'Ethics'],
+        [/community health/i, 'Community Health']
+      ];
+      const txt = r.text || '';
+      const cat = CEU_TOPICS.find(([re]) => re.test(txt));
+      if (cat) Extract.meta(res, 'ceuCategory', 'CEU category', cat[1], 80);
     }
     res.name = X.name.certified(r) || X.name.labeled(r);
   },
@@ -40711,7 +40738,10 @@ const IntakeUI = {
       const syncDefaults = () => {
         const t = type(), p = person();
         if (!t) return;
-        if (!st.titleTouched) st.title = t.short || t.label.replace(/^Professional License: /, 'Professional License: ');
+        if (!st.titleTouched) {
+          if (t.id === 'ceu') { const cat = extFor().fields.find(f => f.key === 'ceuCategory'); st.title = cat ? 'CEU: ' + cat.value : (t.short || t.label); }
+          else st.title = t.short || t.label.replace(/^Professional License: /, 'Professional License: ');
+        }
         if (!st.folderTouched) st.folder = Folders.forType(t.id);
         if (!st.dateTouched) st.docDate = (dateFrom('date') || {}).value || (ctx.fromDoc ? ctx.fromDoc.docDate : '') || U.todayISO();
         if (!st.expTouched) st.expiresOn = (dateFrom('exp') || {}).value || (ctx.fromDoc ? ctx.fromDoc.expiresOn : '') || '';
@@ -41597,7 +41627,7 @@ const PFile = {
   },
   metaLabel(k) {
     return { idNumber: 'ID number', licenseStatus: 'License status', issuer: 'Issued by', course: 'Course', provider: 'Provider', cardId: 'Card or certificate number', testType: 'Test type', induration: 'Induration', result: 'Result',
-      clearance: 'Clearance statement', vin: 'VIN', plate: 'Plate number', vehicle: 'Vehicle', carrier: 'Insurance company', policyNumber: 'Policy number', limits: 'Coverage limits', caseNumber: 'Case number', hours: 'Hours', number: 'Primary number' }[k] || k;
+      clearance: 'Clearance statement', vin: 'VIN', plate: 'Plate number', vehicle: 'Vehicle', carrier: 'Insurance company', policyNumber: 'Policy number', limits: 'Coverage limits', caseNumber: 'Case number', hours: 'Hours', number: 'Primary number', ceuCategory: 'CEU category' }[k] || k;
   },
   async moveDialog(doc) {
     if (!need('docs.upload')) return;
