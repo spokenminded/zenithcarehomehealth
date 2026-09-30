@@ -1,0 +1,109 @@
+step_id,page,procedure,procedure_title,step_title,alora_elements_shown,real_screenshot_present
+login-2,18,P1,Log Into Alora,Enter your username and password,Username box; Password box,no
+login-3,19,P1,Log Into Alora,Click Login,Login button,no
+login-4,20,P1,Log Into Alora,Confirm you are on your own dashboard,Your name menu; Main menu,no
+dash-1,23,P2,Understand the Desktop Dashboard,"Find the menu, the search box and your name",Main menu; Search box (top of screen); Your name menu,no
+dash-2,24,P2,Understand the Desktop Dashboard,Read the pending items box,"Pending 485s, orders, OASIS; Pending 485s, orders, OASIS",no
+dash-3,25,P2,Understand the Desktop Dashboard,Read the NOA box,NOA timely-filing widget; NOA timely-filing widget,no
+dash-4,26,P2,Understand the Desktop Dashboard,Open an area and come back,Patients menu item; Dashboard menu item,no
+sec-2,30,P28,Security and HIPAA Precautions,Log out of Alora at the end of the day,Your name menu; Log out choice,no
+find-1,36,P3,Find a Patient,Go to the patient search,Patients menu item; Search box (top of screen),no
+find-2,37,P3,Find a Patient,Type the last name and birth date,Patient search box; Date of birth box; Search button,no
+find-3,38,P3,Find a Patient,Choose the correct patient,Search results list; Search results list; Correct patient row,no
+open-1,41,P4,Open a Patient Record,Open the record,Open patient record,no
+open-2,42,P4,Open a Patient Record,"Confirm the name, birth date and record number",Patient name banner; Patient name banner,no
+open-3,43,P4,Open a Patient Record,Learn the sections of the record,Demographics section; Documents section; Orders section; Schedule section,no
+demo-1,46,P5,Review Patient Demographics,Open the demographics section,Demographics section,no
+demo-2,47,P5,Review Patient Demographics,"Compare name, birth date and address",Last name box; Date of birth box; Address box; Phone box,no
+demo-3,48,P5,Review Patient Demographics,Compare insurance and physician,Insurance box; Physician box,no
+new-1,52,P5B,Create a New Patient,Prove the patient is not already in Alora,Patient search box; No patients found message,no
+new-2,53,P5B,Create a New Patient,Open the new patient form,New patient / new referral button,no
+new-3,54,P5B,Create a New Patient,Enter the referral date and the patient's legal details,Referral date box; Last name box; Date of birth box,no
+new-4,55,P5B,Create a New Patient,Enter insurance and physician,Insurance box; Insurance ID box; Physician box,no
+new-5,56,P5B,Create a New Patient,"Save, then verify the new record",Save button,no
+ref-4,63,P6,Process a Referral,Find the patient in Alora,Patient search box; Correct patient row,no
+ref-5,64,P6,Process a Referral,Record the referral in Alora,Referral date and time; Referral source; Referral / admission status,no
+up-1,74,P8,Upload Scanned Documents,Find the patient,Patient search box; Correct patient row,no
+up-2,75,P8,Upload Scanned Documents,Open the record and confirm the name,Patient name banner; Patient name banner,no
+up-3,76,P8,Upload Scanned Documents,Open the documents section,Documents section,no
+up-4,77,P8,Upload Scanned Documents,Start the upload,Add / upload document button; Document list,no
+up-6,79,P8,Upload Scanned Documents,Choose the document type,Document type list; Document type list,no
+up-7,80,P8,Upload Scanned Documents,"Check everything, then Save",Choose file button; Document type list; Document date box; Save button (upload window),no
+up-8,81,P8,Upload Scanned Documents,Verify that the document is in the list,Document list; Document row,no
+ver-1,84,P10,Verify Uploaded Documents,Open the document list,Document list; Document list,no
+ver-2,85,P10,Verify Uploaded Documents,Open each document,Open document (viewer); Open document (viewer),no
+ver-4,87,P10,Verify Uploaded Documents,Look for duplicates,Document list; Document list,no
+ord-1,91,P11,Review Physician Orders,Find the order in the patient's documents,Document list,no
+ord-4,94,P11,Review Physician Orders,Check the pending orders list in Alora,Pending clinical items; Order row,no
+f2f-1,98,P12,Review Face-to-Face Documentation,Find the face-to-face document,Document list,no
+soc-3,110,P7,SOC Stage Guide (14 stages),"Find the patient, or create one only if allowed",Patient search box; Correct patient row; New patient / new referral button,no
+soc-4,111,P7,SOC Stage Guide (14 stages),Open the patient record,Patient name banner; Patient name banner; Documents section,no
+soc-5,112,P7,SOC Stage Guide (14 stages),Upload the documents,Add / upload document button; Document list,no
+soc-6,113,P7,SOC Stage Guide (14 stages),Verify the documents,Document list; Document list,no
+soc-7,114,P7,SOC Stage Guide (14 stages),Enter and verify patient information,Last name box; Date of birth box; Address box; Phone box,no
+soc-8,115,P7,SOC Stage Guide (14 stages),Verify the physician order,Order row; Order row; Order row,no
+soc-10,117,P7,SOC Stage Guide (14 stages),Prepare and schedule the SOC visit,Patient box (visit); Visit type / discipline box; Visit date box; Team member box; Save button,no
+soc-11,118,P7,SOC Stage Guide (14 stages),Verify that the clinical workflow is in place,"Pending 485s, orders, OASIS; Pending 485s, orders, OASIS; Pending 485s, orders, OASIS",no
+soc-12,119,P7,SOC Stage Guide (14 stages),Monitor the SOC visit,Live Monitor list; Visit status colors,no
+soc-13,120,P7,SOC Stage Guide (14 stages),Run the QA check,QA items list; QA items list,no
+soc-14,121,P7,SOC Stage Guide (14 stages),Check billing readiness and the NOA,Patient row in NOA list; NOA status,no
+su-1a,124,P7U,SOC Document Upload,Find the correct patient,Patient search box; Correct patient row; Open patient record,no
+su-1b,125,P7U,SOC Document Upload,Open the record and confirm who it is,Patient name banner; Patient name banner,no
+su-2,126,P7U,SOC Document Upload,Open the patient's document area,Documents section; Document list,no
+su-3a,127,P7U,SOC Document Upload,"Referral: click Add, then Choose file",Add / upload document button; Choose file button,no
+su-3c,129,P7U,SOC Document Upload,"Referral: choose the type, check, and Save",Choose file button; Document type list; Document date box; Save button (upload window),no
+su-4,130,P7U,SOC Document Upload,"Physician order: add, choose, type, date, Save",Add / upload document button; Choose file button; Document type list; Document date box; Save button (upload window),no
+su-5,131,P7U,SOC Document Upload,"Face-to-face: add, choose, type, date, Save",Add / upload document button; Choose file button; Document type list; Document date box; Save button (upload window),no
+su-6a,132,P7U,SOC Document Upload,Verify: the completed document list,Document list; Document list; Document list,no
+su-6b,133,P7U,SOC Document Upload,Verify: open each document,Open document (viewer); Open document (viewer),no
+pr-4,139,P13,Prepare and Schedule the SOC Visit,Add the SOC visit in Alora,Patient box (visit); Visit type / discipline box; Visit date box; Visit time box; Team member box,no
+pr-5,140,P13,Prepare and Schedule the SOC Visit,"Read the alerts, then Save",Scheduling alerts; Save button,no
+pr-6,141,P13,Prepare and Schedule the SOC Visit,Check the visit is on the calendar,Visit on the calendar; Day / week / month / certification period,no
+sc-2,147,P14,Schedule Visits,Open the Schedule,Schedule menu item,no
+sc-3,148,P14,Schedule Visits,Start a new visit,Add visit button,no
+sc-4,149,P14,Schedule Visits,Choose who and what,Patient box (visit); Visit type / discipline box; Team member box,no
+sc-5,150,P14,Schedule Visits,Choose when and how often,Visit date box; Visit time box; Repeat / frequency box,no
+sc-6,151,P14,Schedule Visits,"Read the alerts, then Save",Scheduling alerts; Save button,no
+sc-7,152,P14,Schedule Visits,Check the new visits on the calendar,Visit on the calendar; View by patient / team member / agency,no
+vs-1,156,P15,View the Schedule,Open the Schedule,Schedule menu item,no
+vs-2,157,P15,View the Schedule,Choose how to look,View by patient / team member / agency; Day / week / month / certification period,no
+vs-3,158,P15,View the Schedule,Read one visit,Visit on the calendar; Schedule calendar,no
+vs-4,159,P15,View the Schedule,See one patient's visits,View by patient / team member / agency; Schedule calendar,no
+vs-5,160,P15,View the Schedule,See one team member's week,View by patient / team member / agency; Schedule calendar,no
+cs-2,165,P16,Change a Schedule When Authorized,Find the visit on the calendar,Visit on the calendar; Day / week / month / certification period,no
+cs-3,166,P16,Change a Schedule When Authorized,Open the visit and change only what was approved,Visit date box; Visit time box; Team member box,no
+cs-4,167,P16,Change a Schedule When Authorized,Write the reason and Save,Reason for change box; Save button,no
+cs-5,168,P16,Change a Schedule When Authorized,Check the result,Visit on the calendar; Schedule calendar,no
+mo-1,173,P17,Monitor Visits (Live Monitor),Open the Live Monitor,Live Monitor (menu or link),no
+mo-2,174,P17,Monitor Visits (Live Monitor),Read the statuses,Visit status colors; Live Monitor list,no
+mo-3,175,P17,Monitor Visits (Live Monitor),A visit is late,Late visit row; Visit status colors,no
+mo-5,177,P17,Monitor Visits (Live Monitor),A visit is a no-show,No-show row; Visit status colors,no
+ev-1,180,P18,Review EVV Exceptions,Open the exception list,EVV exceptions list; What does not match,no
+ev-2,181,P18,Review EVV Exceptions,Open one exception,Exception row,no
+ev-3,182,P18,Review EVV Exceptions,Read what does not match,What does not match,no
+ev-5,184,P18,Review EVV Exceptions,Write the reason. Do not approve.,Reason box; Approve button,no
+cr-1,187,P19,Review Clinical Documentation (Office Check),Find the pending items on the dashboard,"Pending 485s, orders, OASIS; Pending 485s, orders, OASIS; Pending 485s, orders, OASIS",no
+cr-2,188,P19,Review Clinical Documentation (Office Check),Look at the pending OASIS list,OASIS row; OASIS row,no
+cr-3,189,P19,Review Clinical Documentation (Office Check),Look at the pending plans of care (485),Plan of care (485) row; Plan of care (485) row,no
+cr-4,190,P19,Review Clinical Documentation (Office Check),Look at the pending orders,Order row; Order row,no
+qa-1,194,P20,QA Review (Office Completeness Check),Open QA,QA menu item,no
+qa-2,195,P20,QA Review (Office Completeness Check),Read the QA list,QA items list; QA items list,no
+qa-4,197,P20,QA Review (Office Completeness Check),Items that need correction,QA item row; Return for correction,no
+bi-1,202,P21,Billing Readiness,Open Billing,Billing menu item,no
+bi-2,203,P21,Billing Readiness,Read the billing list,Billing status list; Billing status list,no
+bi-3,204,P21,Billing Readiness,Find out what is missing,Billing section; Patient billing items list,no
+no-1,208,P22,NOA Workflow (Notice of Admission),Find NOAs that are due,NOA timely-filing widget; NOA timely-filing widget,no
+no-2,209,P22,NOA Workflow (Notice of Admission),Open the NOA list,Patient row in NOA list; NOA status,no
+no-4,211,P22,NOA Workflow (Notice of Admission),Create and send the NOA,Create NOA button,no
+no-5,212,P22,NOA Workflow (Notice of Admission),Check that it was accepted,NOA status; Patient row in NOA list,no
+dl-1,217,P23,Daily Office Alora Check,Sign in with your own login,Username box; Password box; Login button,no
+dl-2,218,P23,Daily Office Alora Check,Read the pending items and the NOA box,"Pending 485s, orders, OASIS; NOA timely-filing widget",no
+dl-3,219,P23,Daily Office Alora Check,Check the Live Monitor,Live Monitor list; Visit status colors,no
+dl-4,220,P23,Daily Office Alora Check,Open the exception list,EVV exceptions list; What does not match,no
+dl-5,221,P23,Daily Office Alora Check,Look at today's schedule,Day / week / month / certification period; Schedule calendar,no
+wk-1,226,P24,Weekly Office Alora Check,Find items that have waited too long,Pending clinical items; Pending clinical items,no
+wk-2,227,P24,Weekly Office Alora Check,Compare visits with orders,View by patient / team member / agency; Day / week / month / certification period,no
+wk-4,229,P24,Weekly Office Alora Check,Check staff credentials,Staff list; Staff list,no
+mn-1,233,P25,Monthly Office Alora Check,Compare the active patient list with the DON's census,Search results list; Search results list,no
+mn-2,234,P25,Monthly Office Alora Check,Look at every claim,Billing status list; Billing status list,no
+mn-4,236,P25,Monthly Office Alora Check,Give the Administrator the user list,Staff list,no
