@@ -1,0 +1,5 @@
+{
+  "_readme": "Copy this file to ui_map.json to mark items as verified. Keys are the element keys in ui.py (also shown on the Live Alora Verification Worksheet). 'name' replaces the gray descriptive label in the red pill. Only set verified to true after the Administrator compared the item with live Alora.",
+  "login_btn": { "verified": true, "name": "Sign in" },
+  "nav_schedule": { "verified": true, "name": "Scheduling" }
+}

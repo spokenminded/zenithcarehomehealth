@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zenith Screenshot Annotator</title>
+<style>
+  :root { --navy:#1B2B4B; --gold:#B8892F; --gold2:#D4AF62; --red:#C62828; --line:#D5DBE5; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.4 Arial, "Liberation Sans", sans-serif; color: #1A1F2B; background: #EEF1F6; }
+  header { background: var(--navy); color: #fff; padding: 10px 16px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  header h1 { font-size: 17px; margin: 0; }
+  header small { color: var(--gold2); letter-spacing: .08em; text-transform: uppercase; }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 2px solid var(--gold2); }
+  button, .btn { font: inherit; padding: 7px 12px; border-radius: 6px; border: 1.5px solid #8492A8; background: #F4F6FA; cursor: pointer; }
+  button.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+  button.primary { background: var(--red); color: #fff; border-color: var(--red); font-weight: 700; }
+  input[type=text] { font: inherit; padding: 7px 9px; border: 1.5px solid #8492A8; border-radius: 6px; }
+  .sep { width: 1px; height: 26px; background: var(--line); }
+  main { padding: 14px 16px 40px; }
+  .stage { position: relative; display: inline-block; max-width: 100%; background: #fff; border: 2px solid #8492A8; }
+  canvas { display: block; max-width: 100%; height: auto; cursor: crosshair; touch-action: none; }
+  .empty { padding: 60px 20px; text-align: center; color: #5B6472; border: 3px dashed #AAB4C3; border-radius: 10px; background: #fff; max-width: 900px; }
+  .help { max-width: 900px; margin-top: 14px; background: #FFF6DC; border: 1.5px solid #D79A00; border-radius: 8px; padding: 10px 14px; color: #5a3900; }
+  .help b { color: #7A4A00; }
+  .warn { background: #FCEBEB; border-color: var(--red); color: #7a1515; }
+  ol { margin: 6px 0 0 20px; padding: 0; }
+</style>
+</head>
+<body>
+<header><h1>Zenith Screenshot Annotator</h1><small>Alora Office Operating Manual</small></header>
+<div class="bar">
+  <label class="btn">Open screenshot<input id="file" type="file" accept="image/png,image/jpeg" hidden></label>
+  <span class="sep"></span>
+  <button data-tool="num" class="on" title="Click to place the next numbered circle">1 Number</button>
+  <button data-tool="box" title="Drag to draw a red highlight box">2 Box</button>
+  <button data-tool="arrow" title="Drag from the tail to the point">3 Arrow</button>
+  <button data-tool="label" title="Click, then type a short label">4 Label</button>
+  <button data-tool="redact" title="Drag to black out patient information">5 Redact</button>
+  <span class="sep"></span>
+  <button id="undo">Undo (Ctrl+Z)</button>
+  <button id="reset">Restart numbering</button>
+  <button id="clear">Clear all</button>
+  <span class="sep"></span>
+  <label>Step id <input id="stepid" type="text" value="login-1" size="14" title="Use the step id from screens-needed.csv, for example login-1"></label>
+  <button id="export" class="primary">Save PNG</button>
+</div>
+<main>
+  <div id="empty" class="empty"><b>Open a screenshot of live Alora</b> (or press Ctrl+V to paste one).<br>Screenshots must show a <b>test patient</b>, or every patient name must be blacked out with the Redact tool.</div>
+  <div class="stage" id="stage" hidden><canvas id="cv"></canvas></div>
+  <div class="help">
+    <b>How to use</b>
+    <ol>
+      <li>Open or paste a screenshot of one Alora screen. Capture only the window, at 100% zoom.</li>
+      <li>Type the <b>step id</b> from <code>screens-needed.csv</code> (for example <code>up-4</code>).</li>
+      <li>Use <b>Redact</b> on every real patient name, birth date, phone, address and ID number. Use <b>Number</b> for the red circles (they count 1, 2, 3 in order), <b>Box</b> around the item to click, <b>Arrow</b> from a circle to the item, and <b>Label</b> for a short word such as "Search".</li>
+      <li>Click <b>Save PNG</b>. Put the file in <code>alora-sop/src/screens/</code> with the name <code>&lt;step id&gt;.png</code>. Rebuild. The page then says FROM LIVE ALORA.</li>
+      <li>Make sure the red numbers match the numbered list on the step page, in the same order.</li>
+    </ol>
+  </div>
+  <div class="help warn"><b>Privacy:</b> this tool runs only in your browser. Nothing is uploaded. A screenshot with real patient information must never be saved in the binder, the website or a chat.</div>
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  var stage = document.getElementById('stage'), empty = document.getElementById('empty');
+  var img = null, shapes = [], tool = 'num', nextNum = 1, drag = null;
+  var RED = '#C62828', NAVY = '#1B2B4B';
+
+  function base() { return Math.max(1, cv.width / 900); }   // scale so sizes match the manual's 900 px pictures
+
+  function draw(extra) {
+    if (!img) return;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(img, 0, 0);
+    var all = extra ? shapes.concat([extra]) : shapes;
+    all.forEach(drawShape);
+  }
+  function drawShape(s) {
+    var k = base();
+    if (s.t === 'redact') { ctx.fillStyle = '#000'; ctx.fillRect(Math.min(s.x, s.x2), Math.min(s.y, s.y2), Math.abs(s.x2 - s.x), Math.abs(s.y2 - s.y)); }
+    if (s.t === 'box') {
+      var x = Math.min(s.x, s.x2), y = Math.min(s.y, s.y2), w = Math.abs(s.x2 - s.x), h = Math.abs(s.y2 - s.y);
+      ctx.fillStyle = 'rgba(198,40,40,.09)'; ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = RED; ctx.lineWidth = 3.5 * k; ctx.lineJoin = 'round'; ctx.strokeRect(x, y, w, h);
+    }
+    if (s.t === 'arrow') {
+      var a = Math.atan2(s.y2 - s.y, s.x2 - s.x), hl = 16 * k;
+      ctx.strokeStyle = RED; ctx.fillStyle = RED; ctx.lineWidth = 3.5 * k; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x2 - Math.cos(a) * hl * .6, s.y2 - Math.sin(a) * hl * .6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(s.x2, s.y2);
+      ctx.lineTo(s.x2 - hl * Math.cos(a - .42), s.y2 - hl * Math.sin(a - .42));
+      ctx.lineTo(s.x2 - hl * Math.cos(a + .42), s.y2 - hl * Math.sin(a + .42)); ctx.closePath(); ctx.fill();
+    }
+    if (s.t === 'num') {
+      var r = 15 * k;
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.x, s.y, r + 2.5 * k, 0, 7); ctx.fill();
+      ctx.fillStyle = RED; ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, 7); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = '700 ' + (18 * k) + 'px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(String(s.n), s.x, s.y + 1 * k);
+    }
+    if (s.t === 'label') {
+      ctx.font = '700 ' + (16 * k) + 'px Arial, sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+      var w2 = ctx.measureText(s.text).width + 24 * k, h2 = 32 * k;
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = RED; ctx.lineWidth = 2.5 * k;
+      roundRect(s.x, s.y - h2 / 2, w2, h2, 16 * k); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = NAVY; ctx.fillText(s.text, s.x + 12 * k, s.y + 1 * k);
+    }
+  }
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  function pos(e) {
+    var r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height };
+  }
+  cv.addEventListener('pointerdown', function (e) {
+    if (!img) return;
+    var p = pos(e); cv.setPointerCapture(e.pointerId);
+    if (tool === 'num') { shapes.push({ t: 'num', x: p.x, y: p.y, n: nextNum++ }); draw(); return; }
+    if (tool === 'label') {
+      var text = window.prompt('Short label (one to four words):', '');
+      if (text) { shapes.push({ t: 'label', x: p.x, y: p.y, text: text }); draw(); }
+      return;
+    }
+    drag = { t: tool, x: p.x, y: p.y, x2: p.x, y2: p.y };
+  });
+  cv.addEventListener('pointermove', function (e) { if (!drag) return; var p = pos(e); drag.x2 = p.x; drag.y2 = p.y; draw(drag); });
+  cv.addEventListener('pointerup', function () {
+    if (!drag) return;
+    if (Math.abs(drag.x2 - drag.x) + Math.abs(drag.y2 - drag.y) > 6) shapes.push(drag);
+    drag = null; draw();
+  });
+  function undo() { var s = shapes.pop(); if (s && s.t === 'num') nextNum = Math.max(1, s.n); draw(); }
+  document.getElementById('undo').onclick = undo;
+  document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); } });
+  document.getElementById('reset').onclick = function () { nextNum = 1; };
+  document.getElementById('clear').onclick = function () { if (window.confirm('Remove everything you drew?')) { shapes = []; nextNum = 1; draw(); } };
+  Array.prototype.forEach.call(document.querySelectorAll('[data-tool]'), function (b) {
+    b.onclick = function () { tool = b.getAttribute('data-tool'); Array.prototype.forEach.call(document.querySelectorAll('[data-tool]'), function (x) { x.classList.toggle('on', x === b); }); };
+  });
+  function load(src) {
+    var im = new Image();
+    im.onload = function () {
+      img = im; var maxw = 1800, sc = Math.min(1, maxw / im.naturalWidth);
+      cv.width = Math.round(im.naturalWidth * sc); cv.height = Math.round(im.naturalHeight * sc);
+      var tmp = document.createElement('canvas'); tmp.width = cv.width; tmp.height = cv.height;
+      tmp.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); img = tmp;
+      shapes = []; nextNum = 1; empty.hidden = true; stage.hidden = false; draw();
+    };
+    im.src = src;
+  }
+  document.getElementById('file').onchange = function (e) { var f = e.target.files[0]; if (f) load(URL.createObjectURL(f)); };
+  document.addEventListener('paste', function (e) {
+    var items = (e.clipboardData || {}).items || [];
+    for (var i = 0; i < items.length; i++) if (items[i].type.indexOf('image') === 0) { load(URL.createObjectURL(items[i].getAsFile())); break; }
+  });
+  document.body.addEventListener('dragover', function (e) { e.preventDefault(); });
+  document.body.addEventListener('drop', function (e) { e.preventDefault(); var f = e.dataTransfer.files[0]; if (f) load(URL.createObjectURL(f)); });
+  document.getElementById('export').onclick = function () {
+    if (!img) { window.alert('Open a screenshot first.'); return; }
+    var name = (document.getElementById('stepid').value || 'step').replace(/[^A-Za-z0-9_-]/g, '');
+    cv.toBlob(function (b) { var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name + '.png'; a.click(); }, 'image/png');
+  };
+})();
+</script>
+</body>
+</html>
